@@ -12,4 +12,6 @@ This Python script automates the creation of Kubernetes YAML manifests. It helps
 
     git clone https://github.com/alessandropitocchi/Kubernetes_manifest_generator.git
 
-2- usage python kubernetes_manifest_generator.py --help
+2- usage 
+    
+    python kubernetes_manifest_generator.py --help
