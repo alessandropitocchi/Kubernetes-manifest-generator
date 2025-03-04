@@ -3,12 +3,30 @@ import argparse
 import os
 from datetime import datetime
 
+# pod,deploy,service,ingress,configmap,secret
+
 def generate_namespace(name):
     """Generate namespace manifest"""
     return {
         "apiVersion": "v1",
         "kind": "Namespace",
         "metadata": {"name": name}
+    }
+
+def generate_pod(name, image, namespace):
+    """Generate pod manifest"""
+    return {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {"name": name},
+        "spec": {
+            "containers": [
+                {
+                    "name": name,
+                    "image": image
+                }   
+            ]
+        }
     }
 
 def save_manifest(resource, output_dir, resource_type, name):
@@ -38,6 +56,12 @@ def main():
     ns_parser = subparsers.add_parser("namespace", help="Generate a Kubernetes Namespace manifest", description="Creates a YAML file for a Kubernetes Namespace")
     ns_parser.add_argument("--name", type=str, required=True, help="Specify the namespace name")
 
+    # Pod command
+    pod_parser = subparsers.add_parser("pod", help="Generate a Kubernetes Pod manifest", description="Creates a YAML file for a Kubernetes POd")
+    pod_parser.add_argument("--name", type=str, required=True, help="Specify the pod name")
+    pod_parser.add_argument("--image", type=str, required=True, help="Specify the image")
+    pod_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
+
     # Se non ci sono argomenti, mostra l'help automaticamente
     import sys
     if len(sys.argv) == 1:
@@ -49,6 +73,10 @@ def main():
     if args.resource == "namespace":
         resource = generate_namespace(args.name)
         save_manifest(resource, args.output, "namespace", args.name)
+    elif args.resource == "pod":
+        resource = generate_pod(args.name, args.image, args.namespace)
+        save_manifest(resource, args.output, "pod", args.name)
+    
 
 if __name__ == "__main__":
     main()
