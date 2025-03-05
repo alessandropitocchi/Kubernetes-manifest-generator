@@ -56,9 +56,20 @@ def generate_deployment(name, image, replicas, namespace):
         }
     }
 
-
+def generate_service(name, port, target_port, namespace):
+    """Generate service manifest"""
+    return {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {"name": name, "namespace": namespace},
+        "spec": {
+            "ports": [
+                {"port": port, "targetPort": target_port}
+            ],
+            "selector": {"app": name}
+        }
+    }
     
-
 def save_manifest(resource, output_dir, resource_type, name):
     """Save the manifest file"""
     output_dir = output_dir or "."  # Usa la directory corrente se None
@@ -99,6 +110,12 @@ def main():
     deploy_parser.add_argument("--replicas", type=int, default=1, help="Specify the number of replicas")
     deploy_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
 
+    # Service command
+    service_parser = subparsers.add_parser("service", help="Generate a Kubernetes Service manifest", description="Creates a YAML file for a Kubernetes Service")
+    service_parser.add_argument("--name", type=str, required=True, help="Specify the service name")
+    service_parser.add_argument("--port", type=int, required=True, help="Specify the service port")
+    service_parser.add_argument("--target-port", type=int, help="Specify the target port")
+    service_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
 
     # Se non ci sono argomenti, mostra l'help automaticamente
     import sys
@@ -117,8 +134,10 @@ def main():
     elif args.resource == "deployment":
         resource = generate_deployment(args.name, args.image, args.replicas, args.namespace)
         save_manifest(resource, args.output, "deployment", args.name)
+    elif args.resource == "service":
+        resource = generate_service(args.name, args.port, args.target_port, args.namespace)
+        save_manifest(resource, args.output, "service", args.name)
     
-
 if __name__ == "__main__":
     main()
 
