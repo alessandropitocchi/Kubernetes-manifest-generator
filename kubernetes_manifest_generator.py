@@ -3,7 +3,7 @@ import argparse
 import os
 from datetime import datetime
 
-# pod,deploy,service,ingress,configmap,secret
+# service,ingress,configmap,secret
 
 def generate_namespace(name):
     """Generate namespace manifest"""
@@ -28,6 +28,36 @@ def generate_pod(name, image, namespace):
             ]
         }
     }
+
+def generate_deployment(name, image, replicas, namespace):
+    """Generate deployment manifest"""
+    return {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "metadata": {"name": name, "namespace": namespace},
+        "spec": {
+            "replicas": replicas,
+            "selector": {
+                "matchLabels": {"app": name}
+            },
+            "template": {
+                "metadata": {
+                    "labels": {"app": name}
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": name,
+                            "image": image
+                        }
+                    ]
+                }
+            }
+        }
+    }
+
+
+    
 
 def save_manifest(resource, output_dir, resource_type, name):
     """Save the manifest file"""
@@ -62,6 +92,14 @@ def main():
     pod_parser.add_argument("--image", type=str, required=True, help="Specify the image")
     pod_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
 
+    # Deployment command
+    deploy_parser = subparsers.add_parser("deployment", help="Generate a Kubernetes Deployment manifest", description="Creates a YAML file for a Kubernetes Deployment")
+    deploy_parser.add_argument("--name", type=str, required=True, help="Specify the deployment name")
+    deploy_parser.add_argument("--image", type=str, required=True, help="Specify the image")
+    deploy_parser.add_argument("--replicas", type=int, default=1, help="Specify the number of replicas")
+    deploy_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
+
+
     # Se non ci sono argomenti, mostra l'help automaticamente
     import sys
     if len(sys.argv) == 1:
@@ -76,6 +114,9 @@ def main():
     elif args.resource == "pod":
         resource = generate_pod(args.name, args.image, args.namespace)
         save_manifest(resource, args.output, "pod", args.name)
+    elif args.resource == "deployment":
+        resource = generate_deployment(args.name, args.image, args.replicas, args.namespace)
+        save_manifest(resource, args.output, "deployment", args.name)
     
 
 if __name__ == "__main__":
