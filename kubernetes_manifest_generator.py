@@ -110,8 +110,7 @@ def save_manifest(resource, output_dir, resource_type, name):
 
     filename = os.path.join(
         output_dir,
-        f"{resource_type}-{name}-"
-        f"{datetime.now().strftime('%Y%m%d%H%M%S')}.yaml"
+        f"{resource_type}-{name}-" f"{datetime.now().strftime('%Y%m%d%H%M%S')}.yaml",
     )
 
     with open(filename, "w") as f:
@@ -123,9 +122,7 @@ def save_manifest(resource, output_dir, resource_type, name):
 
 def main():
     """CLI for generating Kubernetes manifest files"""
-    parser = argparse.ArgumentParser(
-        description="Generate Kubernetes manifest files"
-    )
+    parser = argparse.ArgumentParser(description="Generate Kubernetes manifest files")
 
     parser.add_argument(
         "--output",
@@ -143,9 +140,7 @@ def main():
         "--name", type=str, required=True, help="Specify the namespace name"
     )
 
-    pod_parser = subparsers.add_parser(
-        "pod", help="Generate a Kubernetes Pod manifest"
-    )
+    pod_parser = subparsers.add_parser("pod", help="Generate a Kubernetes Pod manifest")
     pod_parser.add_argument(
         "--name", type=str, required=True, help="Specify the pod name"
     )
@@ -279,9 +274,7 @@ def main():
             args.name, yaml.safe_load(args.data), args.namespace
         )
     elif args.resource == "secret":
-        resource = generate_secret(
-            args.name, yaml.safe_load(args.data), args.namespace
-        )
+        resource = generate_secret(args.name, yaml.safe_load(args.data), args.namespace)
     elif args.resource == "ingress":
         resource = generate_ingress(
             args.name,
