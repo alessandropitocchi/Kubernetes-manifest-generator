@@ -110,7 +110,8 @@ def save_manifest(resource, output_dir, resource_type, name):
 
     filename = os.path.join(
         output_dir,
-        f"{resource_type}-{name}-{datetime.now().strftime('%Y%m%d%H%M%S')}.yaml",
+        f"{resource_type}-{name}-"
+        f"{datetime.now().strftime('%Y%m%d%H%M%S')}.yaml"
     )
 
     with open(filename, "w") as f:
