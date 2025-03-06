@@ -1,6 +1,6 @@
 import pytest
 import yaml
-from main import (
+from kubernetes_manifest_generator import (
     generate_namespace,
     generate_pod,
     generate_deployment,
