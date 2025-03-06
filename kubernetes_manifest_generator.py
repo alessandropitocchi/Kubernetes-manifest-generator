@@ -119,7 +119,7 @@ def main():
     pod_parser = subparsers.add_parser("pod", help="Generate a Kubernetes Pod manifest", description="Creates a YAML file for a Kubernetes POd")
     pod_parser.add_argument("--name", type=str, required=True, help="Specify the pod name")
     pod_parser.add_argument("--image", type=str, required=True, help="Specify the image")
-    pod_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
+    pod_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
 
     # Deployment command
     deploy_parser = subparsers.add_parser("deployment", help="Generate a Kubernetes Deployment manifest", description="Creates a YAML file for a Kubernetes Deployment")
