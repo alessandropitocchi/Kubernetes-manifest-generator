@@ -1,5 +1,9 @@
 import pytest
 import yaml
+import sys
+
+sys.path.append("kubernetes_manifest_generator")
+
 from kubernetes_manifest_generator import (
     generate_namespace,
     generate_pod,
