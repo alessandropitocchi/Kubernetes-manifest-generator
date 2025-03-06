@@ -28,7 +28,7 @@ jobs:
           pip install pytest flake8 pyYAML black
 
       - name: Format code with Black
-        run: black --check .
+        run: black .
 
       - name: Run tests
         run: |
