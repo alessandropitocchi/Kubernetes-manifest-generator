@@ -1,8 +1,8 @@
-import pytest
-import yaml
 import sys
+import os
 
-sys.path.append("kubernetes_manifest_generator")
+# Aggiungi il percorso della root del progetto per permettere l'import del modulo
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from kubernetes_manifest_generator import (
     generate_namespace,
@@ -14,7 +14,7 @@ from kubernetes_manifest_generator import (
     generate_ingress,
     save_manifest
 )
-import os
+import yaml
 
 # Test per la generazione del namespace
 def test_generate_namespace():
