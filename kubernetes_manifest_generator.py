@@ -3,7 +3,7 @@ import argparse
 import os
 from datetime import datetime
 
-# ingress,configmap,secret
+# ingress
 
 def generate_namespace(name):
     """Generate namespace manifest"""
@@ -87,6 +87,37 @@ def generate_secret(name, data, namespace):
         "metadata": {"name": name, "namespace": namespace},
         "data": data
     }
+
+def generate_ingress(name, namespace, host, path, service_name, service_port):
+    """Generate ingress manifest"""
+    return {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {"name": name, "namespace": namespace},
+        "spec": {
+            "rules": [
+                {
+                    "host": host,
+                    "http": {
+                        "paths": [
+                            {
+                                "path": path,
+                                "pathType": "Prefix",
+                                "backend": {
+                                    "service": {
+                                        "name": service_name,
+                                        "port": {
+                                            "number": service_port
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
     
 def save_manifest(resource, output_dir, resource_type, name):
     """Save the manifest file"""
@@ -146,6 +177,16 @@ def main():
     secret_parser.add_argument("--name", type=str, required=True, help="Specify the secret name")
     secret_parser.add_argument("--data", type=str, required=True, help="Specify the data")
     secret_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+
+    # ingress command
+    ingress_parser = subparsers.add_parser("ingress", help="Generate a Kubernetes Ingress manifest", description="Creates a YAML file for a Kubernetes Ingress")
+    ingress_parser.add_argument("--name", type=str, required=True, help="Specify the ingress name")
+    ingress_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+    ingress_parser.add_argument("--host", type=str, required=True, help="Specify the host")
+    ingress_parser.add_argument("--path", type=str, required=True, help="Specify the path")
+    ingress_parser.add_argument("--service-name", type=str, required=True, help="Specify the service name")
+    ingress_parser.add_argument("--service-port", type=int, required=True, help="Specify the service port")
+
     
     import sys
     if len(sys.argv) == 1:
@@ -174,6 +215,9 @@ def main():
         data = yaml.safe_load(args.data)
         resource = generate_secret(args.name, data, args.namespace)
         save_manifest(resource, args.output, "secret", args.name)
+    elif args.resource == "ingress":
+        resource = generate_ingress(args.name, args.namespace, args.host, args.path, args.service_name, args.service_port)
+        save_manifest(resource, args.output, "ingress", args.name)
 
 if __name__ == "__main__":
     main()
