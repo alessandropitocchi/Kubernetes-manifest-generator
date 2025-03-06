@@ -6,7 +6,11 @@ from datetime import datetime
 
 def generate_namespace(name):
     """Generate namespace manifest"""
-    return {"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": name}}
+    return {
+        "apiVersion": "v1",
+        "kind": "Namespace",
+        "metadata": {"name": name},
+    }
 
 
 def generate_pod(name, image, namespace):
@@ -118,7 +122,9 @@ def save_manifest(resource, output_dir, resource_type, name):
 
 def main():
     """CLI for generating Kubernetes manifest files"""
-    parser = argparse.ArgumentParser(description="Generate Kubernetes manifest files")
+    parser = argparse.ArgumentParser(
+        description="Generate Kubernetes manifest files"
+    )
 
     parser.add_argument(
         "--output",
@@ -136,7 +142,9 @@ def main():
         "--name", type=str, required=True, help="Specify the namespace name"
     )
 
-    pod_parser = subparsers.add_parser("pod", help="Generate a Kubernetes Pod manifest")
+    pod_parser = subparsers.add_parser(
+        "pod", help="Generate a Kubernetes Pod manifest"
+    )
     pod_parser.add_argument(
         "--name", type=str, required=True, help="Specify the pod name"
     )
@@ -144,7 +152,10 @@ def main():
         "--image", type=str, required=True, help="Specify the image"
     )
     pod_parser.add_argument(
-        "--namespace", type=str, default="default", help="Specify the namespace name"
+        "--namespace",
+        type=str,
+        default="default",
+        help="Specify the namespace name",
     )
 
     deploy_parser = subparsers.add_parser(
@@ -157,10 +168,16 @@ def main():
         "--image", type=str, required=True, help="Specify the image"
     )
     deploy_parser.add_argument(
-        "--replicas", type=int, default=1, help="Specify the number of replicas"
+        "--replicas",
+        type=int,
+        default=1,
+        help="Specify the number of replicas",
     )
     deploy_parser.add_argument(
-        "--namespace", type=str, required=True, help="Specify the namespace name"
+        "--namespace",
+        type=str,
+        required=True,
+        help="Specify the namespace name",
     )
 
     service_parser = subparsers.add_parser(
@@ -176,7 +193,10 @@ def main():
         "--target-port", type=int, help="Specify the target port"
     )
     service_parser.add_argument(
-        "--namespace", type=str, required=True, help="Specify the namespace name"
+        "--namespace",
+        type=str,
+        required=True,
+        help="Specify the namespace name",
     )
 
     configmap_parser = subparsers.add_parser(
@@ -221,10 +241,16 @@ def main():
         "--path", type=str, required=True, help="Specify the path"
     )
     ingress_parser.add_argument(
-        "--service-name", type=str, required=True, help="Specify the service name"
+        "--service-name",
+        type=str,
+        required=True,
+        help="Specify the service name",
     )
     ingress_parser.add_argument(
-        "--service-port", type=int, required=True, help="Specify the service port"
+        "--service-port",
+        type=int,
+        required=True,
+        help="Specify the service port",
     )
 
     import sys
@@ -252,7 +278,9 @@ def main():
             args.name, yaml.safe_load(args.data), args.namespace
         )
     elif args.resource == "secret":
-        resource = generate_secret(args.name, yaml.safe_load(args.data), args.namespace)
+        resource = generate_secret(
+            args.name, yaml.safe_load(args.data), args.namespace
+        )
     elif args.resource == "ingress":
         resource = generate_ingress(
             args.name,

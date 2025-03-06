@@ -2,7 +2,9 @@ import sys
 import os
 
 # Aggiungi il percorso della root del progetto per permettere l'import del modulo
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 
 from kubernetes_manifest_generator import (
     generate_namespace,
@@ -37,12 +39,17 @@ def test_generate_pod():
 
 # Test per la generazione di un deployment
 def test_generate_deployment():
-    deployment = generate_deployment("test-deploy", "nginx:latest", 3, "default")
+    deployment = generate_deployment(
+        "test-deploy", "nginx:latest", 3, "default"
+    )
     assert deployment["apiVersion"] == "apps/v1"
     assert deployment["kind"] == "Deployment"
     assert deployment["metadata"]["name"] == "test-deploy"
     assert deployment["spec"]["replicas"] == 3
-    assert deployment["spec"]["template"]["metadata"]["labels"]["app"] == "test-deploy"
+    assert (
+        deployment["spec"]["template"]["metadata"]["labels"]["app"]
+        == "test-deploy"
+    )
 
 
 # Test per la generazione di un service
@@ -85,7 +92,9 @@ def test_generate_ingress():
     assert ingress["metadata"]["name"] == "test-ingress"
     assert ingress["spec"]["rules"][0]["host"] == "example.com"
     assert (
-        ingress["spec"]["rules"][0]["http"]["paths"][0]["backend"]["service"]["name"]
+        ingress["spec"]["rules"][0]["http"]["paths"][0]["backend"]["service"][
+            "name"
+        ]
         == "test-service"
     )
 
