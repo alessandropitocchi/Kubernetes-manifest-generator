@@ -3,7 +3,6 @@ import argparse
 import os
 from datetime import datetime
 
-# manage label
 
 def generate_namespace(name):
     """Generate namespace manifest"""
@@ -12,6 +11,7 @@ def generate_namespace(name):
         "kind": "Namespace",
         "metadata": {"name": name}
     }
+
 
 def generate_pod(name, image, namespace):
     """Generate pod manifest"""
@@ -24,10 +24,11 @@ def generate_pod(name, image, namespace):
                 {
                     "name": name,
                     "image": image
-                }   
+                }
             ]
         }
     }
+
 
 def generate_deployment(name, image, replicas, namespace):
     """Generate deployment manifest"""
@@ -37,24 +38,16 @@ def generate_deployment(name, image, replicas, namespace):
         "metadata": {"name": name, "namespace": namespace},
         "spec": {
             "replicas": replicas,
-            "selector": {
-                "matchLabels": {"app": name}
-            },
+            "selector": {"matchLabels": {"app": name}},
             "template": {
-                "metadata": {
-                    "labels": {"app": name}
-                },
+                "metadata": {"labels": {"app": name}},
                 "spec": {
-                    "containers": [
-                        {
-                            "name": name,
-                            "image": image
-                        }
-                    ]
+                    "containers": [{"name": name, "image": image}]
                 }
             }
         }
     }
+
 
 def generate_service(name, port, target_port, namespace):
     """Generate service manifest"""
@@ -63,12 +56,11 @@ def generate_service(name, port, target_port, namespace):
         "kind": "Service",
         "metadata": {"name": name, "namespace": namespace},
         "spec": {
-            "ports": [
-                {"port": port, "targetPort": target_port}
-            ],
+            "ports": [{"port": port, "targetPort": target_port}],
             "selector": {"app": name}
         }
     }
+
 
 def generate_configmap(name, data, namespace):
     """Generate configmap manifest"""
@@ -79,6 +71,7 @@ def generate_configmap(name, data, namespace):
         "data": data
     }
 
+
 def generate_secret(name, data, namespace):
     """Generate secret manifest"""
     return {
@@ -87,6 +80,7 @@ def generate_secret(name, data, namespace):
         "metadata": {"name": name, "namespace": namespace},
         "data": data
     }
+
 
 def generate_ingress(name, namespace, host, path, service_name, service_port):
     """Generate ingress manifest"""
@@ -106,9 +100,7 @@ def generate_ingress(name, namespace, host, path, service_name, service_port):
                                 "backend": {
                                     "service": {
                                         "name": service_name,
-                                        "port": {
-                                            "number": service_port
-                                        }
+                                        "port": {"number": service_port}
                                     }
                                 }
                             }
@@ -118,13 +110,17 @@ def generate_ingress(name, namespace, host, path, service_name, service_port):
             ]
         }
     }
-    
+
+
 def save_manifest(resource, output_dir, resource_type, name):
     """Save the manifest file"""
-    output_dir = output_dir or "."  # Usa la directory corrente se None
-    os.makedirs(output_dir, exist_ok=True)  # Crea la directory se non esiste
+    output_dir = output_dir or "."
+    os.makedirs(output_dir, exist_ok=True)
 
-    filename = os.path.join(output_dir, f"{resource_type}-{name}-{datetime.now().strftime('%Y%m%d%H%M%S')}.yaml")
+    filename = os.path.join(
+        output_dir,
+        f"{resource_type}-{name}-{datetime.now().strftime('%Y%m%d%H%M%S')}.yaml"
+    )
 
     with open(filename, "w") as f:
         yaml.dump(resource, f, default_flow_style=False)
@@ -132,62 +128,55 @@ def save_manifest(resource, output_dir, resource_type, name):
     print(f"Manifest file saved to {filename}")
     return filename
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate Kubernetes manifest files"
+    """CLI for generating Kubernetes manifest files"""
+    parser = argparse.ArgumentParser(description="Generate Kubernetes manifest files")
+
+    parser.add_argument(
+        "--output", type=str, default=".", help="Specify the output directory for YAML files"
     )
 
-    # Argomento globale --output
-    parser.add_argument("--output", type=str, default=".", help="Specify the output directory for YAML files")
+    subparsers = parser.add_subparsers(dest="resource", required=True)
 
-    subparsers = parser.add_subparsers(dest="resource", required=True, help="Available resources to generate")
-
-    # Namespace command
-    ns_parser = subparsers.add_parser("namespace", help="Generate a Kubernetes Namespace manifest", description="Creates a YAML file for a Kubernetes Namespace")
+    ns_parser = subparsers.add_parser("namespace", help="Generate a Kubernetes Namespace manifest")
     ns_parser.add_argument("--name", type=str, required=True, help="Specify the namespace name")
 
-    # Pod command
-    pod_parser = subparsers.add_parser("pod", help="Generate a Kubernetes Pod manifest", description="Creates a YAML file for a Kubernetes POd")
+    pod_parser = subparsers.add_parser("pod", help="Generate a Kubernetes Pod manifest")
     pod_parser.add_argument("--name", type=str, required=True, help="Specify the pod name")
     pod_parser.add_argument("--image", type=str, required=True, help="Specify the image")
     pod_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
 
-    # Deployment command
-    deploy_parser = subparsers.add_parser("deployment", help="Generate a Kubernetes Deployment manifest", description="Creates a YAML file for a Kubernetes Deployment")
+    deploy_parser = subparsers.add_parser("deployment", help="Generate a Kubernetes Deployment manifest")
     deploy_parser.add_argument("--name", type=str, required=True, help="Specify the deployment name")
     deploy_parser.add_argument("--image", type=str, required=True, help="Specify the image")
     deploy_parser.add_argument("--replicas", type=int, default=1, help="Specify the number of replicas")
-    deploy_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
+    deploy_parser.add_argument("--namespace", type=str, required=True, help="Specify the namespace name")
 
-    # Service command
-    service_parser = subparsers.add_parser("service", help="Generate a Kubernetes Service manifest", description="Creates a YAML file for a Kubernetes Service")
+    service_parser = subparsers.add_parser("service", help="Generate a Kubernetes Service manifest")
     service_parser.add_argument("--name", type=str, required=True, help="Specify the service name")
     service_parser.add_argument("--port", type=int, required=True, help="Specify the service port")
     service_parser.add_argument("--target-port", type=int, help="Specify the target port")
-    service_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
+    service_parser.add_argument("--namespace", type=str, required=True, help="Specify the namespace name")
 
-    # ConfigMap command
-    configmap_parser = subparsers.add_parser("configmap", help="Generate a Kubernetes ConfigMap manifest", description="Creates a YAML file for a Kubernetes ConfigMap")
+    configmap_parser = subparsers.add_parser("configmap", help="Generate a Kubernetes ConfigMap manifest")
     configmap_parser.add_argument("--name", type=str, required=True, help="Specify the configmap name")
     configmap_parser.add_argument("--data", type=str, required=True, help="Specify the data")
-    configmap_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+    configmap_parser.add_argument("--namespace", type=str, help="Specify the namespace name")
 
-    # secret command
-    secret_parser = subparsers.add_parser("secret", help="Generate a Kubernetes Secret manifest", description="Creates a YAML file for a Kubernetes Secret")    
+    secret_parser = subparsers.add_parser("secret", help="Generate a Kubernetes Secret manifest")
     secret_parser.add_argument("--name", type=str, required=True, help="Specify the secret name")
     secret_parser.add_argument("--data", type=str, required=True, help="Specify the data")
-    secret_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+    secret_parser.add_argument("--namespace", type=str, help="Specify the namespace name")
 
-    # ingress command
-    ingress_parser = subparsers.add_parser("ingress", help="Generate a Kubernetes Ingress manifest", description="Creates a YAML file for a Kubernetes Ingress")
+    ingress_parser = subparsers.add_parser("ingress", help="Generate a Kubernetes Ingress manifest")
     ingress_parser.add_argument("--name", type=str, required=True, help="Specify the ingress name")
-    ingress_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+    ingress_parser.add_argument("--namespace", type=str, help="Specify the namespace name")
     ingress_parser.add_argument("--host", type=str, required=True, help="Specify the host")
     ingress_parser.add_argument("--path", type=str, required=True, help="Specify the path")
     ingress_parser.add_argument("--service-name", type=str, required=True, help="Specify the service name")
     ingress_parser.add_argument("--service-port", type=int, required=True, help="Specify the service port")
 
-    
     import sys
     if len(sys.argv) == 1:
         parser.print_help()
@@ -197,28 +186,21 @@ def main():
 
     if args.resource == "namespace":
         resource = generate_namespace(args.name)
-        save_manifest(resource, args.output, "namespace", args.name)
     elif args.resource == "pod":
         resource = generate_pod(args.name, args.image, args.namespace)
-        save_manifest(resource, args.output, "pod", args.name)
     elif args.resource == "deployment":
         resource = generate_deployment(args.name, args.image, args.replicas, args.namespace)
-        save_manifest(resource, args.output, "deployment", args.name)
     elif args.resource == "service":
         resource = generate_service(args.name, args.port, args.target_port, args.namespace)
-        save_manifest(resource, args.output, "service", args.name)
     elif args.resource == "configmap":
-        data = yaml.safe_load(args.data)
-        resource = generate_configmap(args.name, data, args.namespace)
-        save_manifest(resource, args.output, "configmap", args.name)
+        resource = generate_configmap(args.name, yaml.safe_load(args.data), args.namespace)
     elif args.resource == "secret":
-        data = yaml.safe_load(args.data)
-        resource = generate_secret(args.name, data, args.namespace)
-        save_manifest(resource, args.output, "secret", args.name)
+        resource = generate_secret(args.name, yaml.safe_load(args.data), args.namespace)
     elif args.resource == "ingress":
         resource = generate_ingress(args.name, args.namespace, args.host, args.path, args.service_name, args.service_port)
-        save_manifest(resource, args.output, "ingress", args.name)
+
+    save_manifest(resource, args.output, args.resource, args.name)
+
 
 if __name__ == "__main__":
     main()
-
