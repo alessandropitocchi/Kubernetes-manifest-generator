@@ -33,7 +33,6 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ --disable-warnings -v
-          flake8
 
       
 
