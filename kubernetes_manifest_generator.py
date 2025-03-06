@@ -3,7 +3,7 @@ import argparse
 import os
 from datetime import datetime
 
-# ingress
+# manage label
 
 def generate_namespace(name):
     """Generate namespace manifest"""
