@@ -3,7 +3,7 @@ import argparse
 import os
 from datetime import datetime
 
-# service,ingress,configmap,secret
+# ingress,configmap,secret
 
 def generate_namespace(name):
     """Generate namespace manifest"""
@@ -69,6 +69,24 @@ def generate_service(name, port, target_port, namespace):
             "selector": {"app": name}
         }
     }
+
+def generate_configmap(name, data, namespace):
+    """Generate configmap manifest"""
+    return {
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {"name": name, "namespace": namespace},
+        "data": data
+    }
+
+def generate_secret(name, data, namespace):
+    """Generate secret manifest"""
+    return {
+        "apiVersion": "v1",
+        "kind": "Secret",
+        "metadata": {"name": name, "namespace": namespace},
+        "data": data
+    }
     
 def save_manifest(resource, output_dir, resource_type, name):
     """Save the manifest file"""
@@ -117,7 +135,18 @@ def main():
     service_parser.add_argument("--target-port", type=int, help="Specify the target port")
     service_parser.add_argument("--namespace", type=str, default="default", required=True, help="Specify the namespace name")
 
-    # Se non ci sono argomenti, mostra l'help automaticamente
+    # ConfigMap command
+    configmap_parser = subparsers.add_parser("configmap", help="Generate a Kubernetes ConfigMap manifest", description="Creates a YAML file for a Kubernetes ConfigMap")
+    configmap_parser.add_argument("--name", type=str, required=True, help="Specify the configmap name")
+    configmap_parser.add_argument("--data", type=str, required=True, help="Specify the data")
+    configmap_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+
+    # secret command
+    secret_parser = subparsers.add_parser("secret", help="Generate a Kubernetes Secret manifest", description="Creates a YAML file for a Kubernetes Secret")    
+    secret_parser.add_argument("--name", type=str, required=True, help="Specify the secret name")
+    secret_parser.add_argument("--data", type=str, required=True, help="Specify the data")
+    secret_parser.add_argument("--namespace", type=str, default="default", help="Specify the namespace name")
+    
     import sys
     if len(sys.argv) == 1:
         parser.print_help()
@@ -137,7 +166,15 @@ def main():
     elif args.resource == "service":
         resource = generate_service(args.name, args.port, args.target_port, args.namespace)
         save_manifest(resource, args.output, "service", args.name)
-    
+    elif args.resource == "configmap":
+        data = yaml.safe_load(args.data)
+        resource = generate_configmap(args.name, data, args.namespace)
+        save_manifest(resource, args.output, "configmap", args.name)
+    elif args.resource == "secret":
+        data = yaml.safe_load(args.data)
+        resource = generate_secret(args.name, data, args.namespace)
+        save_manifest(resource, args.output, "secret", args.name)
+
 if __name__ == "__main__":
     main()
 
